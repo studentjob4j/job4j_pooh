@@ -17,13 +17,14 @@ public class QueueService implements Service {
 
     private  ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> queue =
             new ConcurrentHashMap<>();
-    private AtomicInteger id = new AtomicInteger();
+    private int id;
 
     @Override
     public Resp process(Req req) {
        Resp result = null;
         if (req.text() == null) {
-            result = (new Resp(get(req), id.incrementAndGet()));
+            id++;
+            result = (new Resp(get(req), id));
             return result;
         }
         queue.putIfAbsent(req.mode(), new ConcurrentLinkedQueue<>());
@@ -31,7 +32,7 @@ public class QueueService implements Service {
         return new Resp(req.text(), 0);
     }
 
-    private synchronized String get(Req req) {
+    private String get(Req req) {
         return queue.get(req.mode()).poll();
     }
 }
